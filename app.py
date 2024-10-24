@@ -16,22 +16,22 @@ def get_detailed_answer_from_openai(client, question_type, highlighted_text):
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant that provides detailed answers to questions based on highlighted text from a document."
+                    "content": "You are a helpful assistant that provides detailed answers in Hungarian language. Always respond in Hungarian, regardless of the input language."
                 },
                 {
                     "role": "user",
-                    "content": f"Provide a detailed answer to the following question: {question_type} about '{highlighted_text}'. Include explanations and examples if relevant."
+                    "content": f"Provide a detailed answer in Hungarian to the following question: {question_type} about '{highlighted_text}'. Include explanations and examples if relevant."
                 }
             ]
         )
         return response.choices[0].message.content
     except Exception as e:
-        return f"Error: Unable to get response from OpenAI API. Error: {str(e)}"
+        return f"Hiba: Nem sikerült választ kapni az OpenAI API-tól. Hiba: {str(e)}"
 
-st.title("PDF Highlighter and Detailed Answer Generator")
-
+st.title("Orvosi PDF Szövegkiemelő és Részletes Válaszgenerátor")
+st.header("A válaszokért semmilyen feleősséget nem vállalunk. A válaszok tájékoztató jellegűek", divider=True)
 # Add input for OpenAI API key
-api_key = st.text_input("Enter your OpenAI API key:", type="password")
+api_key = st.text_input("Írd be az OpenAI API kulcsodat:", type="password")
 
 # Initialize OpenAI client
 if api_key:
@@ -39,7 +39,7 @@ if api_key:
 else:
     client = None
 
-uploaded_file = st.file_uploader("Choose a PDF file", type="pdf")
+uploaded_file = st.file_uploader("Válassz egy PDF fájlt", type="pdf")
 
 if uploaded_file is not None:
     text = extract_text_from_pdf(uploaded_file)
@@ -52,20 +52,20 @@ if uploaded_file is not None:
     with col2:
         st.markdown('<div id="highlight-area"></div>', unsafe_allow_html=True)
         
-        highlighted_text = st.text_input("Highlighted text:")
-        question_type = st.selectbox("Select question type:", ["How", "Why", "Details"])
+        highlighted_text = st.text_input("Kiemelt szöveg:")
+        question_type = st.selectbox("Válaszd ki a kérdés típusát:", ["Hogyan", "Miért", "Részletek"])
         
-        if st.button("Generate Detailed Answer") or st.session_state.get('generate_answer', False):
+        if st.button("Válasz Generálása") or st.session_state.get('generate_answer', False):
             if highlighted_text and client:
-                with st.spinner("Generating detailed answer..."):
+                with st.spinner("Válasz generálása folyamatban..."):
                     detailed_answer = get_detailed_answer_from_openai(client, question_type, highlighted_text)
-                st.markdown("### Detailed Answer")
+                st.markdown("### Részletes Válasz")
                 st.write(detailed_answer)
                 st.session_state['generate_answer'] = False
             elif not client:
-                st.warning("Please enter your OpenAI API key.")
+                st.warning("Kérlek, add meg az OpenAI API kulcsodat.")
             else:
-                st.warning("Please highlight some text first.")
+                st.warning("Kérlek, előbb jelölj ki szöveget.")
 
     # Add JavaScript for text selection and keyboard shortcut
     js = """
@@ -78,7 +78,7 @@ if uploaded_file is not None:
         const highlightedText = selection.toString().trim();
         if (highlightedText) {
             document.querySelector('.stTextInput input').value = highlightedText;
-            highlightArea.textContent = 'Selected: ' + highlightedText;
+            highlightArea.textContent = 'Kijelölt szöveg: ' + highlightedText;
         }
     });
     
